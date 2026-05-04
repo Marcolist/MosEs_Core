@@ -1,0 +1,193 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>MosEs — Admin</title>
+    <link rel="stylesheet" href="/static/admin.css" />
+    <script defer src="https://unpkg.com/alpinejs@3.13.5/dist/cdn.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/gridstack@10.1.2/dist/gridstack.min.css" />
+    <script src="https://cdn.jsdelivr.net/npm/gridstack@10.1.2/dist/gridstack-all.js"></script>
+  </head>
+  <body x-data="adminApp()" x-init="init()">
+    <header class="topbar">
+      <div class="brand">
+        <span class="logo">MosEs</span>
+        <span class="tag">Modular Everyday Screen</span>
+      </div>
+      <nav class="tabs">
+        <button :class="{ active: tab === 'store' }" @click="setTab('store')">Plugin Store</button>
+        <button :class="{ active: tab === 'layout' }" @click="setTab('layout')">Layout</button>
+        <template x-for="p in installedPlugins" :key="p.manifest.id">
+          <button
+            :class="{ active: tab === 'plugin:' + p.manifest.id }"
+            @click="setTab('plugin:' + p.manifest.id)"
+            x-text="p.manifest.name"
+          ></button>
+        </template>
+        <button :class="{ active: tab === 'oauth' }" @click="setTab('oauth')">OAuth</button>
+        <button :class="{ active: tab === 'system' }" @click="setTab('system')">System</button>
+      </nav>
+    </header>
+
+    <main>
+      <!-- Plugin Store -->
+      <section x-show="tab === 'store'">
+        <h1>Plugin Store</h1>
+        <p class="muted">Browse, install and update plugins from the registry.</p>
+        <button class="btn" @click="loadStore()">Refresh</button>
+        <div class="card-grid">
+          <template x-for="p in storePlugins" :key="p.id">
+            <article class="card">
+              <header>
+                <h3 x-text="p.name"></h3>
+                <span class="version" x-text="'v' + p.version"></span>
+              </header>
+              <p x-text="p.description"></p>
+              <ul class="badges">
+                <li x-show="p.requires_api_key">API key</li>
+                <li x-show="p.requires_oauth">OAuth</li>
+                <template x-for="d in p.dependencies"><li x-text="'needs ' + d"></li></template>
+              </ul>
+              <footer>
+                <small class="muted" x-text="'by ' + p.author"></small>
+                <div class="actions">
+                  <button x-show="!p.installed" class="btn primary" @click="install(p.id)">Install</button>
+                  <button x-show="p.installed && p.update_available" class="btn primary" @click="update(p.id)">Update</button>
+                  <button x-show="p.installed" class="btn" @click="remove(p.id)">Remove</button>
+                </div>
+              </footer>
+            </article>
+          </template>
+        </div>
+      </section>
+
+      <!-- Layout Editor -->
+      <section x-show="tab === 'layout'">
+        <h1>Layout</h1>
+        <div class="row">
+          <button class="btn primary" @click="saveLayout()">Save</button>
+          <button class="btn" @click="resetLayout()">Reset to default</button>
+          <span class="muted" x-text="layoutStatus"></span>
+        </div>
+        <div class="grid-host">
+          <div class="grid-stack" id="layout-grid"></div>
+        </div>
+      </section>
+
+      <!-- Per-plugin tabs -->
+      <template x-for="p in installedPlugins" :key="p.manifest.id">
+        <section x-show="tab === 'plugin:' + p.manifest.id">
+          <header class="plugin-head">
+            <h1 x-text="p.manifest.name"></h1>
+            <span class="version" x-text="'v' + p.manifest.version"></span>
+            <label class="switch">
+              <input type="checkbox" :checked="p.enabled" @change="toggleEnabled(p.manifest.id, $event.target.checked)" />
+              <span x-text="p.enabled ? 'Enabled' : 'Disabled'"></span>
+            </label>
+          </header>
+          <p class="muted" x-text="p.manifest.description"></p>
+          <div class="status">
+            <div><strong>Last run:</strong> <span x-text="p.last_run_at || '—'"></span></div>
+            <div><strong>Status:</strong> <span x-text="p.last_status || '—'"></span></div>
+            <div x-show="p.last_error" class="err"><strong>Error:</strong> <span x-text="p.last_error"></span></div>
+          </div>
+          <form @submit.prevent="saveConfig(p.manifest.id)">
+            <template x-for="field in p.manifest.settings_schema" :key="field.key">
+              <div class="field">
+                <label :for="'f-' + p.manifest.id + '-' + field.key" x-text="field.label"></label>
+                <template x-if="field.type === 'string'">
+                  <input :id="'f-' + p.manifest.id + '-' + field.key" type="text" :placeholder="field.placeholder || ''" x-model="configValues[p.manifest.id][field.key]" />
+                </template>
+                <template x-if="field.type === 'password'">
+                  <input :id="'f-' + p.manifest.id + '-' + field.key" type="password" x-model="configValues[p.manifest.id][field.key]" />
+                </template>
+                <template x-if="field.type === 'number'">
+                  <input :id="'f-' + p.manifest.id + '-' + field.key" type="number" x-model.number="configValues[p.manifest.id][field.key]" />
+                </template>
+                <template x-if="field.type === 'boolean'">
+                  <input :id="'f-' + p.manifest.id + '-' + field.key" type="checkbox" x-model="configValues[p.manifest.id][field.key]" />
+                </template>
+                <template x-if="field.type === 'textarea'">
+                  <textarea :id="'f-' + p.manifest.id + '-' + field.key" rows="4" x-model="configValues[p.manifest.id][field.key]"></textarea>
+                </template>
+                <template x-if="field.type === 'select'">
+                  <select :id="'f-' + p.manifest.id + '-' + field.key" x-model="configValues[p.manifest.id][field.key]">
+                    <template x-for="opt in field.options"><option :value="opt.value" x-text="opt.label"></option></template>
+                  </select>
+                </template>
+                <template x-if="field.type === 'multiselect'">
+                  <select :id="'f-' + p.manifest.id + '-' + field.key" multiple x-model="configValues[p.manifest.id][field.key]">
+                    <template x-for="opt in field.options"><option :value="opt.value" x-text="opt.label"></option></template>
+                  </select>
+                </template>
+                <small class="muted" x-show="field.help" x-text="field.help"></small>
+              </div>
+            </template>
+            <div class="row">
+              <button class="btn primary" type="submit">Save</button>
+              <span class="muted" x-text="configStatus[p.manifest.id] || ''"></span>
+            </div>
+          </form>
+          <div class="plugin-extra" :id="'plugin-extra-' + p.manifest.id"></div>
+        </section>
+      </template>
+
+      <!-- OAuth -->
+      <section x-show="tab === 'oauth'">
+        <h1>OAuth</h1>
+        <h2>Google</h2>
+        <form @submit.prevent="saveGoogleCreds()">
+          <div class="field">
+            <label>Client ID</label>
+            <input type="text" x-model="google.client_id" />
+          </div>
+          <div class="field">
+            <label>Client Secret</label>
+            <input type="password" x-model="google.client_secret" :placeholder="google.client_secret_set ? '(stored)' : ''" />
+          </div>
+          <button class="btn primary" type="submit">Save credentials</button>
+          <a class="btn" :href="'/api/oauth/google/start'" target="_blank">Connect Google account</a>
+        </form>
+        <h3>Connected providers</h3>
+        <table class="data">
+          <thead><tr><th>Provider</th><th>Scope</th><th>Expires</th><th></th></tr></thead>
+          <tbody>
+            <template x-for="p in oauthProviders" :key="p.provider">
+              <tr>
+                <td x-text="p.provider"></td>
+                <td x-text="p.scope || '—'"></td>
+                <td x-text="p.expires_at || '—'"></td>
+                <td><button class="btn small" @click="disconnect(p.provider)">Disconnect</button></td>
+              </tr>
+            </template>
+          </tbody>
+        </table>
+      </section>
+
+      <!-- System -->
+      <section x-show="tab === 'system'">
+        <h1>System</h1>
+        <p><strong>Version:</strong> <span x-text="system.version"></span></p>
+        <p><strong>Channel:</strong> <span x-text="system.channel"></span></p>
+        <button class="btn" @click="checkUpdate()">Check for updates</button>
+        <div x-show="updateInfo" class="update-box">
+          <p><strong>Latest:</strong> <span x-text="updateInfo?.latest"></span></p>
+          <pre x-text="updateInfo?.changelog"></pre>
+          <button class="btn primary" x-show="updateInfo?.available" @click="installUpdate()">Install update</button>
+        </div>
+        <h3>Display schedule</h3>
+        <form @submit.prevent="saveSchedule()">
+          <label><input type="checkbox" x-model="schedule.enabled" /> Enabled</label>
+          <div class="field"><label>On</label><input type="time" x-model="schedule.on_time" /></div>
+          <div class="field"><label>Off</label><input type="time" x-model="schedule.off_time" /></div>
+          <button class="btn primary" type="submit">Save</button>
+        </form>
+        <h3>Service</h3>
+        <button class="btn" @click="restart()">Restart service</button>
+      </section>
+    </main>
+
+    <script src="/static/admin.js"></script>
+  </body>
+</html>
