@@ -37,7 +37,7 @@ class Settings:
             plugin_registry_repo=os.getenv(
                 "MOSES_PLUGIN_REGISTRY_REPO", "Marcolist/MosEs_plugins"
             ),
-            plugin_registry_branch=os.getenv("MOSES_PLUGIN_REGISTRY_BRANCH", "master"),
+            plugin_registry_branch=os.getenv("MOSES_PLUGIN_REGISTRY_BRANCH", "main"),
             core_repo=os.getenv("MOSES_CORE_REPO", "Marcolist/MosEs_Core"),
             update_channel=os.getenv("MOSES_UPDATE_CHANNEL", "stable"),
             host=os.getenv("MOSES_HOST", "0.0.0.0"),
