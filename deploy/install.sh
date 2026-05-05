@@ -7,7 +7,7 @@ set -euo pipefail
 INSTALL_DIR=/opt/moses
 DATA_DIR=/var/lib/moses
 USER_NAME=moses
-REPO_URL="${REPO_URL:-https://github.com/marcolist/moses_core.git}"
+REPO_URL="${REPO_URL:-https://github.com/Marcolist/MosEs_Core.git}"
 BRANCH="${BRANCH:-main}"
 
 if [[ $EUID -ne 0 ]]; then

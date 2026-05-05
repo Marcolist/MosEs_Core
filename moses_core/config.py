@@ -35,10 +35,10 @@ class Settings:
             plugins_dir=plugins_dir,
             db_path=_env_path("MOSES_DB_PATH", data_dir / "moses.db"),
             plugin_registry_repo=os.getenv(
-                "MOSES_PLUGIN_REGISTRY_REPO", "marcolist/moses_plugins"
+                "MOSES_PLUGIN_REGISTRY_REPO", "Marcolist/MosEs_plugins"
             ),
-            plugin_registry_branch=os.getenv("MOSES_PLUGIN_REGISTRY_BRANCH", "main"),
-            core_repo=os.getenv("MOSES_CORE_REPO", "marcolist/moses_core"),
+            plugin_registry_branch=os.getenv("MOSES_PLUGIN_REGISTRY_BRANCH", "master"),
+            core_repo=os.getenv("MOSES_CORE_REPO", "Marcolist/MosEs_Core"),
             update_channel=os.getenv("MOSES_UPDATE_CHANNEL", "stable"),
             host=os.getenv("MOSES_HOST", "0.0.0.0"),
             port=int(os.getenv("MOSES_PORT", "8000")),
