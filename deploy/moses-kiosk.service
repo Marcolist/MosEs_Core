@@ -1,0 +1,22 @@
+[Unit]
+Description=MosEs Kiosk (Chromium)
+After=graphical.target moses.service
+Wants=moses.service
+
+[Service]
+Type=simple
+User=moses
+Environment=DISPLAY=:0
+Environment=XAUTHORITY=/home/moses/.Xauthority
+ExecStartPre=/usr/bin/xset s off
+ExecStartPre=/usr/bin/xset -dpms
+ExecStartPre=/usr/bin/xset s noblank
+ExecStart=/usr/bin/chromium-browser --kiosk --noerrdialogs --disable-infobars \
+  --check-for-update-interval=31536000 \
+  --autoplay-policy=no-user-gesture-required \
+  http://localhost:8000/dashboard
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=graphical.target

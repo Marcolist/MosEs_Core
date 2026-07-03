@@ -1,0 +1,101 @@
+:root {
+  --bg: #0f1115;
+  --panel: #181b22;
+  --border: #2a2f3a;
+  --text: #e7e9ee;
+  --muted: #8a93a6;
+  --accent: #4f8cff;
+  --accent-hi: #6ea1ff;
+  --danger: #ef4444;
+  --ok: #22c55e;
+  --warn: #f59e0b;
+}
+
+* { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; background: var(--bg); color: var(--text); font: 14px/1.5 system-ui, sans-serif; }
+a { color: var(--accent); }
+small.muted, .muted { color: var(--muted); }
+
+.topbar {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  padding: 12px 24px;
+  background: var(--panel);
+  border-bottom: 1px solid var(--border);
+  flex-wrap: wrap;
+}
+.brand .logo { font-weight: 700; font-size: 18px; letter-spacing: 0.5px; }
+.brand .tag { color: var(--muted); margin-left: 8px; font-size: 12px; }
+.tabs { display: flex; gap: 4px; flex-wrap: wrap; }
+.tabs button {
+  background: transparent;
+  border: 1px solid transparent;
+  color: var(--text);
+  padding: 6px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+.tabs button:hover { border-color: var(--border); }
+.tabs button.active { background: var(--accent); color: white; }
+
+main { padding: 24px; max-width: 1200px; margin: 0 auto; }
+h1 { margin: 0 0 12px; }
+h2 { margin-top: 24px; }
+h3 { margin-top: 16px; }
+.row { display: flex; align-items: center; gap: 12px; margin: 12px 0; }
+
+.btn {
+  background: var(--panel);
+  color: var(--text);
+  border: 1px solid var(--border);
+  padding: 6px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 13px;
+}
+.btn:hover { border-color: var(--accent); }
+.btn.primary { background: var(--accent); border-color: var(--accent); color: white; }
+.btn.primary:hover { background: var(--accent-hi); }
+.btn.small { padding: 2px 8px; font-size: 12px; }
+
+.card-grid { display: grid; gap: 16px; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); margin-top: 16px; }
+.card { background: var(--panel); border: 1px solid var(--border); border-radius: 8px; padding: 16px; display: flex; flex-direction: column; gap: 8px; }
+.card header { display: flex; align-items: baseline; justify-content: space-between; }
+.card h3 { margin: 0; }
+.card .version { color: var(--muted); font-size: 12px; }
+.card footer { display: flex; align-items: center; justify-content: space-between; margin-top: auto; padding-top: 12px; }
+.badges { list-style: none; padding: 0; margin: 0; display: flex; flex-wrap: wrap; gap: 6px; }
+.badges li { background: var(--bg); border: 1px solid var(--border); border-radius: 999px; padding: 2px 8px; font-size: 11px; color: var(--muted); }
+
+.field { display: flex; flex-direction: column; gap: 4px; margin: 8px 0; }
+.field label { color: var(--muted); font-size: 12px; }
+.field input, .field textarea, .field select {
+  background: var(--bg);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 6px 8px;
+  font: inherit;
+}
+.field input[type="checkbox"] { width: auto; }
+
+.plugin-head { display: flex; align-items: center; gap: 12px; }
+.plugin-head h1 { margin: 0; }
+.switch { display: flex; align-items: center; gap: 8px; margin-left: auto; }
+
+.status { background: var(--panel); border: 1px solid var(--border); border-radius: 6px; padding: 12px; margin: 12px 0; }
+.status .err { color: var(--danger); }
+
+.data { width: 100%; border-collapse: collapse; margin-top: 12px; }
+.data th, .data td { border-bottom: 1px solid var(--border); padding: 8px; text-align: left; }
+.data th { color: var(--muted); font-weight: 500; font-size: 12px; }
+
+.update-box { background: var(--panel); border: 1px solid var(--border); border-radius: 8px; padding: 16px; margin: 12px 0; }
+.update-box pre { white-space: pre-wrap; color: var(--muted); font-size: 12px; }
+
+.grid-host { background: var(--panel); border: 1px solid var(--border); border-radius: 8px; padding: 8px; margin-top: 12px; min-height: 400px; }
+.grid-stack { background: var(--bg); border-radius: 6px; }
+.grid-stack-item-content { background: #222630; border: 1px solid var(--border); border-radius: 6px; padding: 12px; color: var(--text); display: flex; align-items: center; justify-content: center; }

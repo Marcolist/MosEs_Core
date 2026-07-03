@@ -1,0 +1,23 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "moses-core"
+version = "0.1.0"
+description = "MosEs — Modular Everyday Screen. Self-hosted modular wall display."
+readme = "README.md"
+requires-python = ">=3.11"
+license = { text = "MIT" }
+dependencies = [
+    "fastapi>=0.110",
+    "uvicorn[standard]>=0.27",
+    "apscheduler>=3.10",
+    "pydantic>=2.5",
+]
+
+[project.scripts]
+moses = "moses_core.__main__:main"
+
+[tool.setuptools.packages.find]
+include = ["moses_core*"]

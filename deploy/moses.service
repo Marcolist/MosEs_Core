@@ -1,0 +1,18 @@
+[Unit]
+Description=MosEs — Modular Everyday Screen
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=moses
+Group=moses
+WorkingDirectory=/opt/moses
+Environment=PYTHONUNBUFFERED=1
+Environment=MOSES_DATA_DIR=/var/lib/moses
+ExecStart=/opt/moses/venv/bin/python -m moses_core
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target
